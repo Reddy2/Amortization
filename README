@@ -1,0 +1,160 @@
+Amortization
+
+Python module for calculating information regarding amortization loans
+
+The main classes are Loan and Period.
+
+Period
+
+A Period represents a period in a loan schedule.  A Period consists of 4 instance variables - interest, principal, balance and date (optional).  Each of these instance variables represents their respective values in the period of the loan schedule.
+Ex: 
+>>> period34 = Period(455.67, 121.7, 150000, datetime.date(2012, 1, 1))
+>>> print(period34)
+  January, 2012   Interest:  455.67   Principal:  121.70   Balance: 150000.00
+## pretty print month and year
+>>> period34.monthAndYearStr()
+'January, 2012'
+
+Loan
+
+A Loan allows you to create a loan which consists of Periods.  A Loan consists of 5 instance variables - rate, nper, pv, date (optional), and typ (default = 0). 
+
+- Rate is the rate of interest on the Loan.  
+Note:  Rate is based on the payment period (i.e. monthly).  If you have an annual rate of 4.5% interest on a Loan paid monthly, then your rate is 0.045/12.
+
+- Nper is the number of periods the Loan the consists of.  
+Note:  Nper is based on the payment period (i.e. monthly).  If you have a 30 year loan paid monthly, then there are 30 * 12 (360) payments.
+
+- Pv is the present value of the Loan.  This is the amount of principal that must be paid on the loan.
+
+- Date (optional) is the date the loan starts.  Setting this instance variable will allow for dates to appear in the schedule and period functions.
+
+- Typ (default = 0) is the type of Loan.  0 denotes paying at the end of the period; 1 denotes paying at the beginning of the period.
+Note:  This may become deprecated.  I don't know if this variable has any purpose.
+
+Example:
+
+$150,000 Loan with 4.5% interest over 15 years, paid monthly.  Start date is August, 2012. 
+Initialization
+>>> house = Loan(.045/12, 15*12, 150000, datetime.date(2012, 8, 1))
+>>> print(house)
+   August, 2012   Rate: 0.00375   Nper: 180   Pv: 150000   Typ: 0
+
+
+Methods
+
+
+Loan.pmt
+The pmt function calculates the periodic (usually monthly) payment of the Loan
+>>> house.pmt()
+1147.4899332201949
+
+
+Loan.period
+The period function gets any Period of the Loan (that is to say, it returns a Period object)
+>>> print(house.period(147))
+  October, 2024   Interest:  137.12   Principal: 1010.37   Balance: 35555.28
+
+Note: If you want to use a date instead of a period, use the periodForDate function.
+
+
+Loan.schedule / Loan.printSchedule
+Returns the schedule for the Loan for a certain numbers of Periods or the entirety of the loan (default)
+
+>>> for period in house.schedule():
+...	print(period)
+  August, 2012   Interest:  562.50   Principal:  584.99   Balance: 149415.01
+September, 2012   Interest:  560.31   Principal:  587.18   Balance: 148827.83
+  October, 2012   Interest:  558.10   Principal:  589.39   Balance: 148238.44
+…
+…
+And so on until the last period.
+
+>>> for period in house.schedule(178, 180):
+...	print(period)
+      May, 2027   Interest:   12.81   Principal: 1134.68   Balance: 2282.13
+     June, 2027   Interest:    8.56   Principal: 1138.93   Balance: 1143.20
+     July, 2027   Interest:    4.29   Principal: 1143.20   Balance:    0.00
+
+Loan.printSchedule has the same usage, but will print out the periods for you with no need for the for loop.
+
+>>> house.printSchedule(178, 180):
+      May, 2027   Interest:   12.81   Principal: 1134.68   Balance: 2282.13
+     June, 2027   Interest:    8.56   Principal: 1138.93   Balance: 1143.20
+     July, 2027   Interest:    4.29   Principal: 1143.20   Balance:    0.00
+
+
+Loan.periodForDate/Loan.dateForPeriod
+Returns the date or period for the period or date.
+
+>>> house.periodForDate(datetime.date(2020, 5, 1))
+94
+>>> house.dateForPeriod(94)
+datetime.date(2020, 5, 1)
+
+
+Loan.totalCost / Loan.totalInterest
+Returns the total cost/interest of the Loan
+
+>>> house.totalCost()
+206548.18797963508
+>>> house.totalInterest()
+56548.187979635084
+
+
+Loan.payOffDate
+Returns the month and year of the last payment/period
+
+>>> house.payOffDate()
+'July, 2027'
+
+
+Loan.interestPaidSincePeriod / Loan.interestRemainingAfterPeriod
+Returns the total amount of interest paid before/remaining after a certain period
+
+>>> house.interestPaidSincePeriod(150)
+54624.87546062925
+>>> house.interestRemainingAfterPeriod(150)
+1923.3125190058345
+
+Thus:
+
+>>> house.interestPaidSincePeriod(150) + house.interestRemainingAfterPeriod(150) == house.totalInterest()
+True
+
+Note: If you want to use a date instead of a period, use the periodForDate function.
+
+
+Loan.principalPaidSincePeriod / Loan.principalRemainingAfterPeriod
+Returns the total amount of principal paid before/remaining after a certain period
+
+>>> house.principalPaidSincePeriod(150)
+117498.61452239998
+>>> house.principalRemainingAfterPeriod(150)
+32501.38547760002
+
+Thus:
+
+>>> house.principalPaidSincePeriod(150) + house.principalRemainingAfterPeriod(150) == house.pv
+True
+
+Note: If you want to use a date instead of a period, use the periodForDate function.
+
+
+Loan.totalPaidSincePeriod / Loan.totalRemainingAfterPeriod
+Returns the total amount of the loan (including interest) paid before/remaining after a certain period
+
+>>> house.totalPaidSincePeriod(150)
+172123.48998302923
+>>> house.totalRemainingAfterPeriod(150)
+34424.69799660586
+
+Thus these values equate to the total cost of the Loan:
+
+>>> house.totalPaidSincePeriod(150) + house.totalRemainingAfterPeriod(150) == house.totalCost()
+True
+
+>>> house.totalInterest() + house.pv == house.totalCost()
+True ## Recall pv is the total interest of the Loan
+
+Note: If you want to use a date instead of a period, use the periodForDate function.

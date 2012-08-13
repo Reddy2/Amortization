@@ -123,6 +123,9 @@ class Period:
         return str('Interest: %7.2f   Principal: %7.2f   Balance: %7.2f' %
                   (self.interest, self.principal, self.balance))
 
+    def monthAndYearStr(self):
+        return monthAndYearStr(self.date)
+
 
 
 
@@ -306,5 +309,7 @@ class Loan:
 
     def totalRemainingAfterPeriod(self, period):
         return self.totalCost() - self.totalPaidSincePeriod(period)
-    
+
+    def payOffDate(self):
+        return monthAndYearStr(self.period(self.nper).date)
     
